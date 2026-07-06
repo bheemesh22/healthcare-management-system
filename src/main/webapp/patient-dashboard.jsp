@@ -34,7 +34,7 @@
     <ul>
         <li>Book New Consultation Appointments with Registered Doctors</li>
         <li>Download Active Medical Prescriptions</li>
-        <li>View Lab Results & Vaccination Records</li>
+        <li>View Lab Results &amp; Vaccination Records</li>
     </ul>
     <a href="login.jsp" class="logout-btn">Secure Logout</a>
 </div>

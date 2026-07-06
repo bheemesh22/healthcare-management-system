@@ -33,7 +33,7 @@
     <h3>Clinical Operations</h3>
     <ul>
         <li>Review Scheduled Patient Consultations</li>
-        <li>Access Diagnostic Reports & Patient Medical Histories</li>
+        <li>Access Diagnostic Reports &amp; Patient Medical Histories</li>
         <li>Issue E-Prescriptions and Treatment Updates</li>
     </ul>
     <a href="login.jsp" class="logout-btn">Secure Logout</a>

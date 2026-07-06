@@ -33,7 +33,7 @@
     <hr>
     <h3>Administrative Management Panel</h3>
     <ul>
-        <li>Manage System Operations & System Security</li>
+        <li>Manage System Operations &amp; System Security</li>
         <li>Review Verification Approvals for Healthcare Workers</li>
         <li>Access Database Infrastructure Metrics</li>
     </ul>
