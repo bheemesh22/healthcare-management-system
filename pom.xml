@@ -11,7 +11,33 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <dependencies>
+    <!-- 1. Jakarta Servlet API -->
+    <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>6.0.0</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <!-- 2. Jakarta Server Pages (JSP) API -->
+    <dependency>
+        <groupId>jakarta.servlet.jsp</groupId>
+        <artifactId>jakarta.servlet.jsp-api</artifactId>
+        <version>3.1.1</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <!-- 3. Standard, Stable MySQL JDBC Driver -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.33</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
@@ -20,36 +46,9 @@
         <artifactId>maven-war-plugin</artifactId>
         <version>3.3.2</version>
         <configuration>
-          <!-- This prevents Eclipse/Maven from throwing errors if folders are empty -->
           <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
     </plugins>
-    
-    <dependencies>
-    <!-- 1. Jakarta Servlet API (For handling web requests) -->
-    <dependency>
-        <groupId>jakarta.servlet</groupId>
-        <artifactId>jakarta.servlet-api</artifactId>
-        <version>6.0.0</version>
-        <scope>provided</scope> <!-- Provided because Tomcat 10+ already has it -->
-    </dependency>
-
-    <!-- 2. Jakarta Server Pages API (For JSP handling) -->
-    <dependency>
-        <groupId>jakarta.servlet.jsp</groupId>
-        <artifactId>jakarta.servlet.jsp-api</artifactId>
-        <version>3.1.1</version>
-        <scope>provided</scope>
-    </dependency>
-
-    <!-- 3. MySQL JDBC Driver (For database connectivity) -->
-    <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-j</artifactId>
-        <version>8.3.0</version>
-    </dependency>
-  </dependencies>
-    
   </build>
 </project>
