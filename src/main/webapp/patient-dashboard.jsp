@@ -53,7 +53,7 @@
         <a href="#" class="active">Dashboard Home</a>
         <a href="#">My Appointments</a>
         <a href="#">Medical Records</a>
-        <a href="#">Prescriptions</a>
+        <a href="view-prescriptions.jsp">Prescriptions</a>
         <a href="#">Settings Profile</a>
     </div>
 
@@ -93,7 +93,7 @@
                     <h3>Active Prescriptions</h3>
                     <p>Track your medication schedules, clinical prescription dosages, and refill approval timelines directly.</p>
                 </div>
-                <a href="#" class="btn-link">View Details</a>
+                <a href="view-prescriptions.jsp" class="btn-link">View Details</a>
             </div>
         </div>
 
