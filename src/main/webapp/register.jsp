@@ -106,7 +106,7 @@
     %>
 
     <%-- Registration Form submitting to the Servlet mapping URL --%>
-    <form action="register" method="POST">
+    <form action="${pageContext.request.contextPath}/register" method="POST">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" placeholder="Enter username" required>

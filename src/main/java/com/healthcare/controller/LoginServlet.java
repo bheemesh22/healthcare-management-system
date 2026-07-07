@@ -19,14 +19,12 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        // Initialize the data layer handler
         this.userDAO = new UserDAOImpl();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        // Direct address hits to /login route directly over to the login interface view
         response.sendRedirect("login.jsp");
     }
 
@@ -34,43 +32,36 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 1. Gather form input credentials
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        // 2. Validate field presence
-        if (username == null || username.trim().isEmpty() ||
-            password == null || password.trim().isEmpty()) {
-            
-            request.setAttribute("errorMessage", "Username and Password cannot be blank.");
+        if (username == null || password == null || username.trim().isEmpty() || password.trim().isEmpty()) {
+            request.setAttribute("errorMessage", "Please fill in both username and password fields.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
-        // 3. Authenticate user records against the database
-        User verifiedUser = userDAO.loginUser(username.trim(), password);
+        // Verify credentials against database
+        User validatedUser = userDAO.validateUser(username, password);
 
-        // 4. Act on authentication result
-        if (verifiedUser != null) {
-            // Authentication Success -> Initialize an active secure session tracking object
+        if (validatedUser != null) {
+            // Set up clean browser session tracking structures
             HttpSession session = request.getSession(true);
-            session.setAttribute("currentUser", verifiedUser);
-            session.setAttribute("userRole", verifiedUser.getRole());
+            session.setAttribute("currentUser", validatedUser);
+            session.setAttribute("userRole", validatedUser.getRole());
 
-            // 5. Route user based on their specific account security permission tier (Role)
-            String role = verifiedUser.getRole();
-            if ("ADMIN".equals(role)) {
-                response.sendRedirect("admin-dashboard.jsp");
+            // Route user based on their specific account role
+            String role = validatedUser.getRole();
+            if ("PATIENT".equals(role)) {
+                response.sendRedirect("patient-dashboard.jsp");
             } else if ("DOCTOR".equals(role)) {
                 response.sendRedirect("doctor-dashboard.jsp");
-            } else if ("PATIENT".equals(role)) {
-                response.sendRedirect("patient-dashboard.jsp");
+            } else if ("ADMIN".equals(role)) {
+                response.sendRedirect("admin-dashboard.jsp");
             } else {
-                // Fallback catch if role mapping is anomalous
-                response.sendRedirect("index.jsp");
+                response.sendRedirect("login.jsp");
             }
         } else {
-            // Authentication Failure -> Return back to login with clean error flags
             request.setAttribute("errorMessage", "Invalid Username or Password. Please try again.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }

@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.healthcare.model.PatientProfile;
-import com.healthcare.util.DBConnection; // Assuming your DB connection helper is here
+import com.healthcare.util.DBConnection;
 
 public class PatientDAOImpl implements PatientDAO {
 
@@ -33,12 +33,11 @@ public class PatientDAOImpl implements PatientDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Returns null if no profile exists yet
+        return null;
     }
 
     @Override
     public boolean saveOrUpdateProfile(PatientProfile profile) {
-        // This upsert query inserts a record if it doesn't exist, or updates it if it does
         String sql = "INSERT INTO patient_profiles (user_id, date_of_birth, blood_group, phone_number, address, medical_history) " +
                      "VALUES (?, ?, ?, ?, ?, ?) " +
                      "ON DUPLICATE KEY UPDATE " +
@@ -47,7 +46,6 @@ public class PatientDAOImpl implements PatientDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
-            // Bind insert parameters
             ps.setInt(1, profile.getUserId());
             ps.setDate(2, profile.getDateOfBirth());
             ps.setString(3, profile.getBloodGroup());
@@ -55,7 +53,6 @@ public class PatientDAOImpl implements PatientDAO {
             ps.setString(5, profile.getAddress());
             ps.setString(6, profile.getMedicalHistory());
             
-            // Bind update parameters
             ps.setDate(7, profile.getDateOfBirth());
             ps.setString(8, profile.getBloodGroup());
             ps.setString(9, profile.getPhoneNumber());

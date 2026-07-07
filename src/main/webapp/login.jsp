@@ -128,7 +128,7 @@
     %>
 
     <%-- Login Form pointing directly to /login servlet mapping --%>
-    <form action="login" method="POST">
+    <form action="${pageContext.request.contextPath}/login" method="POST">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" placeholder="Enter your username" required>

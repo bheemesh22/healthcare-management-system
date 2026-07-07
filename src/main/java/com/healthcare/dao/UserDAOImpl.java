@@ -10,53 +10,70 @@ import com.healthcare.util.DBConnection;
 public class UserDAOImpl implements UserDAO {
 
     @Override
-    public boolean registerUser(User user) {
-        String query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
-        
+    public boolean isUserExists(String username, String email) {
+        // Updated to use 'full_name' instead of 'username'
+        String sql = "SELECT user_id FROM users WHERE full_name = ? OR email = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPassword()); // Stored as provided for now
-            ps.setString(4, user.getRole());
+            ps.setString(1, username.trim());
+            ps.setString(2, email.trim());
             
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-            
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next(); 
+            }
         } catch (SQLException e) {
-            System.err.println("❌ SQL Error during user registration:");
+            System.err.println("❌ Error checking if user exists:");
             e.printStackTrace();
             return false;
         }
     }
 
     @Override
-    public User loginUser(String username, String password) {
-        String query = "SELECT * FROM users WHERE username = ? AND password = ?";
-        
+    public boolean registerUser(User user) {
+        // Updated column names to 'full_name' to match your database exactly
+        String sql = "INSERT INTO users (full_name, password, email, role) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             
-            ps.setString(1, username);
-            ps.setString(2, password);
+            ps.setString(1, user.getUsername().trim()); // Maps to full_name
+            ps.setString(2, user.getPassword().trim()); 
+            ps.setString(3, user.getEmail().trim());
+            ps.setString(4, user.getRole().toUpperCase().trim());
+            
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Error during user database registration insert:");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public User validateUser(String username, String password) {
+        // Updated selection and where clause to match 'user_id' and 'full_name'
+        String sql = "SELECT user_id, full_name, email, role FROM users WHERE full_name = ? AND password = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, username.trim());
+            ps.setString(2, password.trim());
             
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     User user = new User();
-                    user.setId(rs.getInt("id"));
-                    user.setUsername(rs.getString("username"));
+                    // Extracting data using your exact database column names
+                    user.setId(rs.getInt("user_id"));
+                    user.setUsername(rs.getString("full_name"));
                     user.setEmail(rs.getString("email"));
-                    user.setPassword(rs.getString("password"));
                     user.setRole(rs.getString("role"));
-                    user.setCreatedAt(rs.getTimestamp("created_at"));
-                    return user;
+                    return user; 
                 }
             }
         } catch (SQLException e) {
-            System.err.println("❌ SQL Error during user login validation:");
+            System.err.println("❌ Error validating user credentials:");
             e.printStackTrace();
         }
-        return null; // Returns null if no user matches or an exception occurs
+        return null; 
     }
 }
