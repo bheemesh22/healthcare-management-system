@@ -21,7 +21,31 @@ public class User {
         this.role = role;
     }
 
-    // Getters and Setters
+    // --- ALIAS METHODS TO MATCH DATABASE SCHEMAS AND LOGIN SERVLET ---
+    
+    public int getUserId() { 
+        return this.id; 
+    }
+    public void setUserId(int userId) { 
+        this.id = userId; 
+    }
+
+    public String getFullName() { 
+        return this.username; 
+    }
+    public void setFullName(String fullName) { 
+        this.username = fullName; 
+    }
+
+    public boolean isActive() { 
+        return true; // Simple default fallback since tinyint(1) defaults to active
+    }
+    public void setActive(boolean isActive) {
+        // Keeps login servlet signature satisfied cleanly
+    }
+
+    // --- YOUR ORIGINAL GETTERS AND SETTERS ---
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
