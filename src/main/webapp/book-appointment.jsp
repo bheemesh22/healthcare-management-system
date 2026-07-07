@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.healthcare.model.User" %>
+<%@ page import="com.healthcare.dao.DoctorDAOImpl" %>
+<%@ page import="com.healthcare.dao.DoctorDAOImpl.DoctorProfile" %>
+<%@ page import="java.util.List" %>
 <%
     // Ensure the user is authenticated and is a patient before rendering the form
     User currentUser = (User) session.getAttribute("currentUser");
@@ -7,6 +10,10 @@
         response.sendRedirect("login.jsp");
         return;
     }
+
+    // Instantiating DAO to read live medical professionals from database
+    DoctorDAOImpl doctorDAO = new DoctorDAOImpl();
+    List<DoctorProfile> activeDoctors = doctorDAO.getAllActiveDoctors();
 %>
 <!DOCTYPE html>
 <html>
@@ -40,8 +47,21 @@
             <label for="doctorId">Select Specialist Doctor</label>
             <select name="doctorId" id="doctorId" required>
                 <option value="">-- Choose a Professional Specialist --</option>
-                <option value="1">Dr. B. Venkat (Cardiology)</option>
-                <option value="2">Dr. Anil Kumar (General Medicine)</option>
+                <%
+                    if (activeDoctors != null && !activeDoctors.isEmpty()) {
+                        for (DoctorProfile doc : activeDoctors) {
+                %>
+                    <option value="<%= doc.getDoctorId() %>">
+                        Dr. <%= doc.getFullName() %> (<%= doc.getSpecialization() %>)
+                    </option>
+                <%
+                        }
+                    } else {
+                %>
+                    <option value="" disabled>No doctors available at this time</option>
+                <%
+                    }
+                %>
             </select>
         </div>
 
