@@ -50,8 +50,8 @@
 
     <div class="sidebar">
         <h2>HealthSync AI</h2>
-        <a href="#" class="active">Dashboard Home</a>
-        <a href="#">My Appointments</a>
+        <a href="patient-dashboard.jsp" class="active">Dashboard Home</a>
+        <a href="my-appointments.jsp">My Appointments</a>
         <a href="#">Medical Records</a>
         <a href="view-prescriptions.jsp">Prescriptions</a>
         <a href="#">Settings Profile</a>
@@ -79,7 +79,10 @@
                     <h3>Schedule New Appointment</h3>
                     <p>Connect with our verified specialized clinic physicians or view your upcoming active appointment sessions instantly.</p>
                 </div>
-                <a href="book-appointment.jsp" class="btn-link">Book Now →</a>
+                <div style="display: flex; gap: 10px;">
+                    <a href="book-appointment.jsp" class="btn-link">Book Now →</a>
+                    <a href="my-appointments.jsp" class="btn-link" style="background-color: #2c3e50;">View History</a>
+                </div>
             </div>
             <div class="card">
                 <div>
