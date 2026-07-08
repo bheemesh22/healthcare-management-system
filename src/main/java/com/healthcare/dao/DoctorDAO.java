@@ -48,10 +48,11 @@ public class DoctorDAO {
         }
     }
 
-    // Fetch all appointment records booked with this specific doctor
+    // Fetch all appointment records booked with this specific doctor (Symptoms Updated)
     public List<Map<String, Object>> getDoctorAppointments(int doctorId) {
         List<Map<String, Object>> appointments = new ArrayList<>();
-        String sql = "SELECT a.appointment_id, a.appointment_date, a.status, u.full_name AS patient_name " +
+        // SECURED: Explicit selection of a.symptoms from the appointments schema
+        String sql = "SELECT a.appointment_id, a.appointment_date, a.symptoms, a.status, u.full_name AS patient_name " +
                      "FROM appointments a " +
                      "JOIN patients p ON a.patient_id = p.patient_id " +
                      "JOIN users u ON p.user_id = u.user_id " +
@@ -74,6 +75,10 @@ public class DoctorDAO {
                         app.put("date", "N/A");
                         app.put("time", "N/A");
                     }
+                    
+                    // EXTRACTED: Read the text field safely and supply default strings if null
+                    String rawSymptoms = rs.getString("symptoms");
+                    app.put("symptoms", (rawSymptoms != null && !rawSymptoms.trim().isEmpty()) ? rawSymptoms : "No specific symptoms logged by patient.");
                     
                     app.put("status", rs.getString("status"));
                     app.put("patientName", rs.getString("patient_name"));

@@ -117,23 +117,34 @@
                         <th>Patient Name Identity Profile</th>
                         <th>Target Reservation Date</th>
                         <th>Scheduled Time Slot</th>
+                        <!-- FIXED UI: Patient Symptoms Column Header Incorporated -->
+                        <th style="width: 28%;">Patient-Reported Symptoms</th>
                         <th>Status Badge</th>
                         <th>Management Controls</th>
                     </tr>
                 </thead>
                 <tbody>
                 <% if (appointments.isEmpty()) { %>
-                    <tr><td colspan="6" style="text-align:center; color:#95a5a6;">No appointment records currently mapped to your clinical index.</td></tr>
+                    <tr><td colspan="7" style="text-align:center; color:#95a5a6;">No appointment records currently mapped to your clinical index.</td></tr>
                 <% } else {
                     for (Map<String, Object> app : appointments) {
                         int appId = (Integer) app.get("appointmentId");
                         String status = (String) app.get("status");
+                        String patientSymptoms = (String) app.get("symptoms");
                 %>
                     <tr>
                         <td><strong>#<%= appId %></strong></td>
                         <td><%= app.get("patientName") %></td>
                         <td><%= app.get("date") %></td>
                         <td><%= app.get("time") %></td>
+                        
+                        <!-- FIXED UI: Beautiful context element mapping raw symptoms details directly inside table row layout -->
+                        <td>
+                            <div style="background-color: #fff9db; color: #856404; padding: 6px 12px; border-radius: 4px; font-size: 12px; border-left: 3px solid #f5c06b; line-height: 1.4; max-width: 320px; word-wrap: break-word;">
+                                <strong>Context:</strong> <%= patientSymptoms %>
+                            </div>
+                        </td>
+                        
                         <td><span class="badge badge-<%= status %>"><%= status %></span></td>
                         <td>
                             <% if ("PENDING".equalsIgnoreCase(status)) { %>
