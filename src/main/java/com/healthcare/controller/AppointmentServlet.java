@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import com.healthcare.model.User;
 import com.healthcare.dao.AppointmentDAO;
 import com.healthcare.dao.AppointmentDAOImpl;
 import com.healthcare.model.Appointment;
@@ -28,30 +29,27 @@ public class AppointmentServlet extends HttpServlet {
             return;
         }
 
-        // 1. Extract values from the form inputs
+        User currentUser = (User) session.getAttribute("currentUser");
+
         try {
-            // NOTE: In the next step, we ensure the patientId is loaded into the session 
-            // when they log in or set up their profile.
-            Integer patientId = (Integer) session.getAttribute("patientId");
-            if (patientId == null) {
-                response.sendRedirect("patient-dashboard.jsp?error=Profile incomplete. Please fill medical profile first.");
-                return;
-            }
+            // FIX: Use the baseline system user_id. Our updated DAO will use a SQL subquery 
+            // to fetch or provision the correct row inside the patients table dynamically!
+            int userId = currentUser.getUserId(); 
 
             int doctorId = Integer.parseInt(request.getParameter("doctorId"));
             String dateStr = request.getParameter("appointmentDate");
             String timeSlot = request.getParameter("timeSlot");
             String symptoms = request.getParameter("symptoms");
 
-            // 2. Populate the data model
+            // Populate the data model
             Appointment appointment = new Appointment();
-            appointment.setPatientId(patientId);
+            appointment.setPatientId(userId); // Storing user_id temporarily inside the patientId attribute field
             appointment.setDoctorId(doctorId);
-            appointment.setAppointmentDate(Date.valueOf(dateStr)); // Formats YYYY-MM-DD
+            appointment.setAppointmentDate(Date.valueOf(dateStr)); 
             appointment.setTimeSlot(timeSlot);
             appointment.setSymptoms(symptoms);
 
-            // 3. Persist to database using our DAO contract logic
+            // Persist using your custom DAO subquery implementation block
             boolean success = appointmentDAO.bookAppointment(appointment);
 
             if (success) {

@@ -4,6 +4,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%
+    // Session Validation Guard
     User currentUser = (User) session.getAttribute("currentUser");
     if (currentUser == null || !"DOCTOR".equals(session.getAttribute("userRole"))) {
         response.sendRedirect("login.jsp?error=Session expired or authorization restricted.");
@@ -18,13 +19,12 @@
     Double fee = (Double) doctorProfile.get("consultationFee");
     String hours = (String) doctorProfile.get("availabilityHours");
     
-    if (spec == null) spec = "Not Assigned by Admin yet";
+    if (spec == null || spec.trim().isEmpty()) spec = "Not Assigned by Admin yet";
     if (fee == null) fee = 0.0;
-    if (hours == null) hours = "Not Set";
+    if (hours == null || hours.trim().isEmpty()) hours = "Not Set";
 
     List<Map<String, Object>> appointments = dao.getDoctorAppointments(doctorId);
     
-    // Calculate dynamic telemetry state card totals
     int totalBookings = appointments.size();
     int pendingCount = 0;
     for (Map<String, Object> app : appointments) {
@@ -58,7 +58,6 @@
         .data-panel.active-panel { display: block; }
         .panel-title { font-size: 18px; color: #2c3e50; margin-bottom: 20px; font-weight: 600; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         
-        /* Profile Layout Forms */
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; color: #34495e; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
         .form-control { width: 100%; max-width: 400px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
@@ -150,6 +149,8 @@
                                     <input type="hidden" name="status" value="CANCELLED">
                                     <button type="submit" class="btn-action btn-cancel">Cancel</button>
                                 </form>
+                            <% } else if ("CONFIRMED".equalsIgnoreCase(status)) { %>
+                                <a href="add-prescription.jsp?appointmentId=<%= appId %>" class="btn-action" style="background-color: #3498db; text-decoration: none; display: inline-block; text-align: center;">+ Add Rx</a>
                             <% } else { %>
                                 <span style="color:#95a5a6; font-size:13px;">No pending actions</span>
                             <% } %>

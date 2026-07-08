@@ -12,7 +12,8 @@
         return;
     }
 
-    Integer patientId = (Integer) session.getAttribute("patientId");
+    // FIX: Extract the core system user_id instead of a missing null patientId session attribute
+    int userId = currentUser.getUserId();
     Connection conn = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
@@ -50,77 +51,72 @@
     </div>
 
     <%
-        if (patientId == null) {
-    %>
-        <div class="no-records">Error: Patient identity context profile mapping could not be resolved.</div>
-    <%
-        } else {
-            try {
-                conn = com.healthcare.util.DBConnection.getConnection();
-                
-                // Fetch appointments linked to this patient and join with users to pull the doctor's name
-                String sql = "SELECT a.appointment_id, a.appointment_date, a.time_slot, a.symptoms, a.status, u.username AS doctor_name " +
-                             "FROM appointments a " +
-                             "JOIN doctors d ON a.doctor_id = d.doctor_id " +
-                             "JOIN users u ON d.user_id = u.user_id " +
-                             "WHERE a.patient_id = ? " +
-                             "ORDER BY a.appointment_date DESC";
-                             
-                ps = conn.prepareStatement(sql);
-                ps.setInt(1, patientId);
-                rs = ps.executeQuery();
+        try {
+            conn = com.healthcare.util.DBConnection.getConnection();
+            
+            // FIX: Join across patients using the parent user_id, and fix u.username -> u.full_name
+            String sql = "SELECT a.appointment_id, a.appointment_date, a.time_slot, a.symptoms, a.status, u.full_name AS doctor_name " +
+                         "FROM appointments a " +
+                         "JOIN doctors d ON a.doctor_id = d.doctor_id " +
+                         "JOIN users u ON d.user_id = u.user_id " +
+                         "JOIN patients p ON a.patient_id = p.patient_id " +
+                         "WHERE p.user_id = ? " +
+                         "ORDER BY a.appointment_date DESC, a.appointment_id DESC";
+                         
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
 
-                if (!rs.isBeforeFirst()) {
+            if (!rs.isBeforeFirst()) {
     %>
-                    <div class="no-records">You have not scheduled or requested any consultation appointments yet.</div>
+                <div class="no-records">You have not scheduled or requested any consultation appointments yet.</div>
     <%
-                } else {
+            } else {
     %>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Doctor Reference</th>
-                                <th>Consultation Date</th>
-                                <th>Time Window Slot</th>
-                                <th>Symptoms Noted</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <%
-                            while (rs.next()) {
-                                String status = rs.getString("status");
-                        %>
-                            <tr>
-                                <td><strong>#<%= rs.getInt("appointment_id") %></strong></td>
-                                <td>Dr. <%= rs.getString("doctor_name") %></td>
-                                <td><%= rs.getDate("appointment_date") %></td>
-                                <td><%= rs.getString("time_slot") %></td>
-                                <td><%= rs.getString("symptoms") %></td>
-                                <td>
-                                    <span class="badge <%= "CONFIRMED".equalsIgnoreCase(status) ? "badge-confirmed" : "badge-pending" %>">
-                                        <%= status %>
-                                    </span>
-                                </td>
-                            </tr>
-                        <%
-                            }
-                        %>
-                        </tbody>
-                    </table>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Doctor Reference</th>
+                            <th>Consultation Date</th>
+                            <th>Time Window Slot</th>
+                            <th>Symptoms Noted</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                        while (rs.next()) {
+                            String status = rs.getString("status");
+                    %>
+                        <tr>
+                            <td><strong>#<%= rs.getInt("appointment_id") %></strong></td>
+                            <td>Dr. <%= rs.getString("doctor_name") %></td>
+                            <td><%= rs.getDate("appointment_date") %></td>
+                            <td><%= rs.getString("time_slot") %></td>
+                            <td><%= rs.getString("symptoms") %></td>
+                            <td>
+                                <span class="badge <%= "CONFIRMED".equalsIgnoreCase(status) ? "badge-confirmed" : "badge-pending" %>">
+                                    <%= status %>
+                                </span>
+                            </td>
+                        </tr>
+                    <%
+                        }
+                    %>
+                    </tbody>
+                </table>
     <%
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-    %>
-                <div class="no-records" style="color: #e74c3c;">An engineering error occurred loading records from the database pipeline.</div>
-    <%
-            } finally {
-                if (rs != null) try { rs.close(); } catch (SQLException e) {}
-                if (ps != null) try { ps.close(); } catch (SQLException e) {}
-                if (conn != null) try { conn.close(); } catch (SQLException e) {}
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+    %>
+            <div class="no-records" style="color: #e74c3c;">An engineering error occurred loading records from the database pipeline.</div>
+    <%
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) {}
+            if (ps != null) try { ps.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
     %>
 </div>

@@ -34,7 +34,7 @@
         body { background-color: #f4f7f6; display: flex; min-height: 100vh; }
         .sidebar { width: 260px; background-color: #2c3e50; color: white; padding: 30px 20px; }
         .sidebar h2 { margin-bottom: 30px; font-size: 20px; text-align: center; border-bottom: 2px solid #34495e; padding-bottom: 10px; color: #3498db; }
-        .sidebar button { display: block; width: 100%; background: none; border: none; text-align: left; color: #bdc3c7; padding: 12px 15px; text-decoration: none; margin-bottom: 8px; border-radius: 4px; font-weight: 500; font-size: 14px; cursor: pointer; }
+        .sidebar button { display: block; width: 100%; background: none; border: none; text-align: left; color: #bdc3c7; padding: 12px 15px; margin-bottom: 8px; border-radius: 4px; font-weight: 500; font-size: 14px; cursor: pointer; }
         .sidebar button.active, .sidebar button:hover { background-color: #3498db; color: white; }
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 15px; }
@@ -53,7 +53,7 @@
         .panel-title { font-size: 18px; color: #2c3e50; margin-bottom: 20px; font-weight: 600; }
         
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #eef2f5; font-size: 14px; }
+        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #eef2f5; font-size: 13px; }
         th { background-color: #f8f9fa; color: #34495e; font-weight: 600; }
         
         .role-badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
@@ -67,10 +67,9 @@
         .btn-delete { background-color: #e74c3c; margin-left: 5px; }
         
         .spec-form { display: flex; gap: 6px; align-items: center; }
-        .spec-input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; width: 130px; }
+        .spec-input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; width: 120px; }
         .btn-assign { background-color: #3498db; color: white; padding: 6px 10px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
         
-        /* Config Layout Style Matrix */
         .config-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
         .config-details h4 { color: #2c3e50; font-size: 15px; margin-bottom: 4px; }
         .config-details p { color: #7f8c8d; font-size: 13px; }
@@ -113,10 +112,11 @@
                     <tr>
                         <th>ID</th>
                         <th>User Identity Profile</th>
-                        <th>Email Contact Path</th>
                         <th>App Role</th>
+                        <th>Specialization</th>
+                        <th>Fee</th>
+                        <th>Available Hours</th>
                         <th>Account Status</th>
-                        <th>Specialization Matrix</th>
                         <th>Operators</th>
                     </tr>
                 </thead>
@@ -125,27 +125,40 @@
                     int userId = (Integer) userRow.get("userId");
                     boolean isActive = (Boolean) userRow.get("isActive");
                     String role = (String) userRow.get("role");
+                    
                     String currentSpec = (String) userRow.get("specialization");
-                    if (currentSpec == null) currentSpec = "Not Assigned / Patient";
+                    Double fee = (Double) userRow.get("consultationFee");
+                    String hours = (String) userRow.get("availableHours");
+                    
+                    if (currentSpec == null) currentSpec = "N/A";
+                    if (fee == null) fee = 0.0;
+                    if (hours == null) hours = "Not Set";
                 %>
                     <tr>
                         <td><strong>#<%= userId %></strong></td>
-                        <td><%= userRow.get("fullName") %></td>
-                        <td><%= userRow.get("email") %></td>
+                        <td>
+                            <%= userRow.get("fullName") %><br>
+                            <span style="font-size:11px; color:#7f8c8d;"><%= userRow.get("email") %></span>
+                        </td>
                         <td><span class="role-badge role-<%= role %>"><%= role %></span></td>
-                        <td><strong style="color: <%= isActive ? "#2ecc71" : "#e74c3c" %>"><%= isActive ? "ACTIVE" : "SUSPENDED" %></strong></td>
+                        
                         <td>
                             <% if ("DOCTOR".equals(role)) { %>
                                 <form action="admin-action" method="POST" class="spec-form">
                                     <input type="hidden" name="action" value="assignDoctor">
                                     <input type="hidden" name="userId" value="<%= userId %>">
-                                    <input type="text" name="specialization" class="spec-input" placeholder="e.g., Cardiology" value="<%= "Not Assigned / Patient".equals(currentSpec) ? "" : currentSpec %>" required>
+                                    <input type="text" name="specialization" class="spec-input" value="<%= "N/A".equals(currentSpec) ? "" : currentSpec %>" placeholder="Assign Speciality" required>
                                     <button type="submit" class="btn-assign">Save</button>
                                 </form>
                             <% } else { %>
-                                <span style="color: #95a5a6; font-size: 13px;"><%= currentSpec %></span>
+                                <span style="color: #95a5a6;">Patient</span>
                             <% } %>
                         </td>
+                        
+                        <td><%= "DOCTOR".equals(role) ? "$" + fee : "-" %></td>
+                        <td><span style="font-size:12px; color:#34495e;"><%= "DOCTOR".equals(role) ? hours : "-" %></span></td>
+                        
+                        <td><strong style="color: <%= isActive ? "#2ecc71" : "#e74c3c" %>"><%= isActive ? "ACTIVE" : "SUSPENDED" %></strong></td>
                         <td>
                             <form action="admin-action" method="POST" style="display:inline;">
                                 <input type="hidden" name="action" value="toggleStatus">

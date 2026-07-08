@@ -11,7 +11,9 @@ public class AdminDAO {
 
     public List<Map<String, Object>> getAllUsersWithDetails() {
         List<Map<String, Object>> userList = new ArrayList<>();
-        String sql = "SELECT u.user_id, u.full_name, u.email, u.role, u.is_active, d.specialization, d.doctor_id " +
+        // FIX: Added d.consultation_fee and d.available_hours to the SQL statement
+        String sql = "SELECT u.user_id, u.full_name, u.email, u.role, u.is_active, " +
+                     "d.specialization, d.doctor_id, d.consultation_fee, d.available_hours " +
                      "FROM users u " +
                      "LEFT JOIN doctors d ON u.user_id = d.user_id " +
                      "ORDER BY u.user_id DESC";
@@ -29,6 +31,9 @@ public class AdminDAO {
                 row.put("isActive", rs.getBoolean("is_active"));
                 row.put("specialization", rs.getString("specialization"));
                 row.put("doctorId", rs.getInt("doctor_id"));
+                // FIX: Map the rows safely back into the map data structure
+                row.put("consultationFee", rs.getDouble("consultation_fee"));
+                row.put("availableHours", rs.getString("available_hours"));
                 userList.add(row);
             }
         } catch (SQLException e) {
@@ -44,7 +49,6 @@ public class AdminDAO {
             ps.setBoolean(1, !currentStatus);
             ps.setInt(2, userId);
             
-            // Log the action dynamically
             logAdminAction("SYSTEM", "TOGGLE_USER_STATUS", "Altered active state for user ID: " + userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -66,11 +70,8 @@ public class AdminDAO {
         }
     }
 
-    // Upgraded robust synchronization logic
- // Upgraded robust synchronization logic supporting your custom schema attributes
     public boolean provisionDoctorProfile(int userId, String specialization) {
         String checkSql = "SELECT doctor_id FROM doctors WHERE user_id = ?";
-        // Added consultation_fee to satisfy the strict NOT NULL database rule
         String insertSql = "INSERT INTO doctors (user_id, specialization, consultation_fee) VALUES (?, ?, ?)";
         String updateSql = "UPDATE doctors SET specialization = ? WHERE user_id = ?";
         
@@ -79,7 +80,6 @@ public class AdminDAO {
                 checkPs.setInt(1, userId);
                 try (ResultSet rs = checkPs.executeQuery()) {
                     if (rs.next()) {
-                        // Profile exists already, updating specialization is unaffected
                         try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
                             updatePs.setString(1, specialization.trim());
                             updatePs.setInt(2, userId);
@@ -87,11 +87,10 @@ public class AdminDAO {
                             return updatePs.executeUpdate() > 0;
                         }
                     } else {
-                        // Profile missing, inserting with a safe baseline consultation fee (e.g., 0.0)
                         try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
                             insertPs.setInt(1, userId);
                             insertPs.setString(2, specialization.trim());
-                            insertPs.setDouble(3, 0.0); // Safe baseline value. The doctor can update this later from their dashboard profile settings!
+                            insertPs.setDouble(3, 0.0);
                             
                             logAdminAction("SYSTEM", "PROVISION_DOCTOR", "Created doctor profile with specialization " + specialization + " for user ID: " + userId);
                             return insertPs.executeUpdate() > 0;
@@ -106,7 +105,6 @@ public class AdminDAO {
         }
     }
 
-    // Fetch Simulated system configurations safely (Memory persistent fallback context)
     public Map<String, String> getSystemConfigurations() {
         Map<String, String> configs = new HashMap<>();
         configs.put("maintenance_mode", "FALSE");
@@ -128,7 +126,6 @@ public class AdminDAO {
     }
 
     public boolean updateConfig(String key, String value) {
-        // Build table if missing dynamically, then save values
         String createTableSql = "CREATE TABLE IF NOT EXISTS system_config (config_key VARCHAR(100) PRIMARY KEY, config_value VARCHAR(255))";
         String saveSql = "INSERT INTO system_config (config_key, config_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE config_value = ?";
         
@@ -147,7 +144,6 @@ public class AdminDAO {
         }
     }
 
-    // Dynamic Audit Log Tracking System Engine
     public List<Map<String, String>> getAuditTrackingLogs() {
         List<Map<String, String>> logs = new ArrayList<>();
         String createTableSql = "CREATE TABLE IF NOT EXISTS audit_logs (id INT AUTO_INCREMENT PRIMARY KEY, actor VARCHAR(100), action VARCHAR(100), details TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";

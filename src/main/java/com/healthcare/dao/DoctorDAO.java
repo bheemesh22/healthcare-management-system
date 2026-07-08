@@ -12,7 +12,7 @@ public class DoctorDAO {
     // Fetch details of a doctor using their core user_id session key
     public Map<String, Object> getDoctorProfileByUserId(int userId) {
         Map<String, Object> profile = new HashMap<>();
-        String sql = "SELECT doctor_id, specialization, consultation_fee, availability_hours FROM doctors WHERE user_id = ?";
+        String sql = "SELECT doctor_id, specialization, consultation_fee, available_hours FROM doctors WHERE user_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -22,10 +22,11 @@ public class DoctorDAO {
                     profile.put("doctorId", rs.getInt("doctor_id"));
                     profile.put("specialization", rs.getString("specialization"));
                     profile.put("consultationFee", rs.getDouble("consultation_fee"));
-                    profile.put("availabilityHours", rs.getString("availability_hours"));
+                    profile.put("availabilityHours", rs.getString("available_hours"));
                 }
             }
         } catch (SQLException e) {
+            System.err.println("🔥 Error reading doctor profile parameters: " + e.getMessage());
             e.printStackTrace();
         }
         return profile;
@@ -33,7 +34,7 @@ public class DoctorDAO {
 
     // Update doctor professional workspace settings
     public boolean updateDoctorProfile(int userId, double fee, String hours) {
-        String sql = "UPDATE doctors SET consultation_fee = ?, availability_hours = ? WHERE user_id = ?";
+        String sql = "UPDATE doctors SET consultation_fee = ?, available_hours = ? WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDouble(1, fee);
@@ -41,6 +42,7 @@ public class DoctorDAO {
             ps.setInt(3, userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
+            System.err.println("🔥 Profile Sync completely blocked: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -49,12 +51,12 @@ public class DoctorDAO {
     // Fetch all appointment records booked with this specific doctor
     public List<Map<String, Object>> getDoctorAppointments(int doctorId) {
         List<Map<String, Object>> appointments = new ArrayList<>();
-        String sql = "SELECT a.appointment_id, a.appointment_date, a.appointment_time, a.status, u.full_name AS patient_name " +
+        String sql = "SELECT a.appointment_id, a.appointment_date, a.status, u.full_name AS patient_name " +
                      "FROM appointments a " +
                      "JOIN patients p ON a.patient_id = p.patient_id " +
                      "JOIN users u ON p.user_id = u.user_id " +
                      "WHERE a.doctor_id = ? " +
-                     "ORDER BY a.appointment_date ASC, a.appointment_time ASC";
+                     "ORDER BY a.appointment_date ASC";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -63,14 +65,23 @@ public class DoctorDAO {
                 while (rs.next()) {
                     Map<String, Object> app = new HashMap<>();
                     app.put("appointmentId", rs.getInt("appointment_id"));
-                    app.put("date", rs.getDate("appointment_date"));
-                    app.put("time", rs.getString("appointment_time"));
+                    
+                    Timestamp ts = rs.getTimestamp("appointment_date");
+                    if (ts != null) {
+                        app.put("date", ts.toLocalDateTime().toLocalDate().toString());
+                        app.put("time", ts.toLocalDateTime().toLocalTime().toString());
+                    } else {
+                        app.put("date", "N/A");
+                        app.put("time", "N/A");
+                    }
+                    
                     app.put("status", rs.getString("status"));
                     app.put("patientName", rs.getString("patient_name"));
                     appointments.add(app);
                 }
             }
         } catch (SQLException e) {
+            System.err.println("🔥 Error indexing appointment maps: " + e.getMessage());
             e.printStackTrace();
         }
         return appointments;

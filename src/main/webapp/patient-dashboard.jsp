@@ -34,7 +34,7 @@
         .status-alert { padding: 12px; margin-bottom: 20px; border-radius: 4px; font-weight: bold; color: white; }
         
         /* Interactive Chatbot Interface Styling */
-        .chat-container { background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; height: 450px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e0e0e0; margin-top: 20px; }
+        .chat-container { background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; height: 450px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e0 e0e0; margin-top: 20px; }
         .chat-header { background: #3498db; color: white; padding: 15px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
         .chat-box { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px; }
         .message { max-width: 75%; padding: 10px 14px; border-radius: 15px; font-size: 14px; line-height: 1.4; }
@@ -52,9 +52,9 @@
         <h2>HealthSync AI</h2>
         <a href="patient-dashboard.jsp" class="active">Dashboard Home</a>
         <a href="my-appointments.jsp">My Appointments</a>
-        <a href="#">Medical Records</a>
+        <a href="medical-records.jsp">Medical Records</a>
         <a href="view-prescriptions.jsp">Prescriptions</a>
-        <a href="#">Settings Profile</a>
+        <a href="profile-settings.jsp">Settings Profile</a>
     </div>
 
     <div class="main-content">
@@ -89,7 +89,7 @@
                     <h3>Electronic Health Records</h3>
                     <p>Review diagnostic lab test metrics, past clinical summary releases, and historical profile telemetry updates safely.</p>
                 </div>
-                <a href="#" class="btn-link">View Records</a>
+                <a href="medical-records.jsp" class="btn-link">View Records</a>
             </div>
             <div class="card">
                 <div>
