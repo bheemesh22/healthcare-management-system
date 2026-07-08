@@ -63,6 +63,22 @@ public class AdminActionServlet extends HttpServlet {
                 } else {
                     response.sendRedirect("admin-dashboard.jsp?error=Failed to map doctor specialization schema parameters.");
                 }
+                
+            } else if ("updateConfig".equals(action)) { // ⚙️ Fixed: Added missing configuration interception route
+                String key = request.getParameter("configKey");
+                String value = request.getParameter("configValue");
+                
+                if (key == null || value == null || key.trim().isEmpty()) {
+                    response.sendRedirect("admin-dashboard.jsp?error=Invalid configuration key-value inputs.");
+                    return;
+                }
+                
+                if (adminDAO.updateConfig(key, value)) {
+                    response.sendRedirect("admin-dashboard.jsp?success=System configuration updated and recorded successfully.");
+                } else {
+                    response.sendRedirect("admin-dashboard.jsp?error=Failed to write configuration property variables to database.");
+                }
+                
             } else {
                 response.sendRedirect("admin-dashboard.jsp?error=Invalid action parameter signature.");
             }
