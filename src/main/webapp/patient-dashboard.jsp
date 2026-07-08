@@ -54,6 +54,7 @@
         <a href="my-appointments.jsp">My Appointments</a>
         <a href="medical-records.jsp">Medical Records</a>
         <a href="view-prescriptions.jsp">Prescriptions</a>
+        <a href="view-profile.jsp">My Medical Profile</a>
         <a href="profile-settings.jsp">Settings Profile</a>
     </div>
 
