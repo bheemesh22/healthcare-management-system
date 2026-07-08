@@ -18,10 +18,13 @@
     int totalUsers = systemUsers.size();
     int activeDoctors = 0;
     int totalPatients = 0;
+    int totalAdmins = 0;
+    
     for (Map<String, Object> u : systemUsers) {
         String role = (String) u.get("role");
         if ("DOCTOR".equals(role)) activeDoctors++;
         else if ("PATIENT".equals(role)) totalPatients++;
+        else if ("ADMIN".equals(role)) totalAdmins++;
     }
 %>
 <!DOCTYPE html>
@@ -40,24 +43,26 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 15px; }
         .logout-btn { background-color: #e74c3c; color: white; padding: 10px 18px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 14px; }
         
-        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 35px; }
-        .metric-card { background: white; padding: 20px; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-left: 4px solid #3498db; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 35px; }
+        .metric-card { background: white; padding: 20px; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-left: 4px solid #34495e; }
         .metric-card.doctors { border-left-color: #9b59b6; }
         .metric-card.patients { border-left-color: #2ecc71; }
-        .metric-card h3 { color: #7f8c8d; font-size: 13px; text-transform: uppercase; margin-bottom: 5px; }
-        .metric-card p { font-size: 28px; font-weight: bold; color: #2c3e50; }
+        .metric-card.admins { border-left-color: #e67e22; }
+        .metric-card h3 { color: #7f8c8d; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+        .metric-card p { font-size: 26px; font-weight: bold; color: #2c3e50; }
         
         .status-alert { padding: 12px; margin-bottom: 25px; border-radius: 4px; font-weight: bold; color: white; font-size: 14px; text-align: center; }
         .data-panel { background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); padding: 25px; display: none; }
         .data-panel.active-panel { display: block; }
-        .panel-title { font-size: 18px; color: #2c3e50; margin-bottom: 20px; font-weight: 600; }
+        .panel-section-wrapper { margin-bottom: 40px; background: #ffffff; border: 1px solid #eef2f5; border-radius: 6px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .panel-title { font-size: 16px; color: #2c3e50; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #f4f7f6; padding-bottom: 8px; }
         
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #eef2f5; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eef2f5; font-size: 13px; }
         th { background-color: #f8f9fa; color: #34495e; font-weight: 600; }
         
-        .role-badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
-        .role-ADMIN { background: #e3f2fd; color: #0d47a1; }
+        .role-badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .role-ADMIN { background: #fff3e0; color: #e65100; }
         .role-DOCTOR { background: #f3e5f5; color: #4a148c; }
         .role-PATIENT { background: #e8f5e9; color: #1b5e20; }
         
@@ -67,7 +72,7 @@
         .btn-delete { background-color: #e74c3c; margin-left: 5px; }
         
         .spec-form { display: flex; gap: 6px; align-items: center; }
-        .spec-input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; width: 120px; }
+        .spec-input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; width: 135px; }
         .btn-assign { background-color: #3498db; color: white; padding: 6px 10px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
         
         .config-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
@@ -102,79 +107,162 @@
 
         <div id="accounts" class="data-panel active-panel">
             <div class="metrics-grid">
-                <div class="metric-card"><h3>Total Registries</h3><p><%= totalUsers %></p></div>
+                <div class="metric-card"><h3>Total Directory</h3><p><%= totalUsers %></p></div>
                 <div class="metric-card doctors"><h3>Approved Doctors</h3><p><%= activeDoctors %></p></div>
                 <div class="metric-card patients"><h3>Registered Patients</h3><p><%= totalPatients %></p></div>
+                <div class="metric-card admins"><h3>System Admins</h3><p><%= totalAdmins %></p></div>
             </div>
-            <div class="panel-title">👥 Complete System User Directory Roster</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>User Identity Profile</th>
-                        <th>App Role</th>
-                        <th>Specialization</th>
-                        <th>Fee</th>
-                        <th>Available Hours</th>
-                        <th>Account Status</th>
-                        <th>Operators</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <% for (Map<String, Object> userRow : systemUsers) {
-                    int userId = (Integer) userRow.get("userId");
-                    boolean isActive = (Boolean) userRow.get("isActive");
-                    String role = (String) userRow.get("role");
-                    
-                    String currentSpec = (String) userRow.get("specialization");
-                    Double fee = (Double) userRow.get("consultationFee");
-                    String hours = (String) userRow.get("availableHours");
-                    
-                    if (currentSpec == null) currentSpec = "N/A";
-                    if (fee == null) fee = 0.0;
-                    if (hours == null) hours = "Not Set";
-                %>
-                    <tr>
-                        <td><strong>#<%= userId %></strong></td>
-                        <td>
-                            <%= userRow.get("fullName") %><br>
-                            <span style="font-size:11px; color:#7f8c8d;"><%= userRow.get("email") %></span>
-                        </td>
-                        <td><span class="role-badge role-<%= role %>"><%= role %></span></td>
-                        
-                        <td>
-                            <% if ("DOCTOR".equals(role)) { %>
+
+            <div class="panel-section-wrapper">
+                <div class="panel-title">🩺 Medical Staff & Clinical Specialists</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Doctor Identity</th>
+                            <th>Role</th>
+                            <th>Medical Specialization Assignment</th>
+                            <th>Consultation Fee</th>
+                            <th>Available Hours</th>
+                            <th>Status</th>
+                            <th>Management Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% 
+                        boolean hasDoctors = false;
+                        for (Map<String, Object> userRow : systemUsers) {
+                            if ("DOCTOR".equals((String) userRow.get("role"))) {
+                                hasDoctors = true;
+                                int userId = (Integer) userRow.get("userId");
+                                boolean isActive = (Boolean) userRow.get("isActive");
+                                String currentSpec = (String) userRow.get("specialization");
+                                Double fee = (Double) userRow.get("consultationFee");
+                                String hours = (String) userRow.get("availableHours");
+                                if (currentSpec == null) currentSpec = "";
+                                if (fee == null) fee = 0.0;
+                                if (hours == null) hours = "Not Set";
+                    %>
+                        <tr>
+                            <td><strong>#<%= userId %></strong></td>
+                            <td><%= userRow.get("fullName") %><br><span style="font-size:11px; color:#7f8c8d;"><%= userRow.get("email") %></span></td>
+                            <td><span class="role-badge role-DOCTOR">DOCTOR</span></td>
+                            <td>
                                 <form action="admin-action" method="POST" class="spec-form">
                                     <input type="hidden" name="action" value="assignDoctor">
                                     <input type="hidden" name="userId" value="<%= userId %>">
-                                    <input type="text" name="specialization" class="spec-input" value="<%= "N/A".equals(currentSpec) ? "" : currentSpec %>" placeholder="Assign Speciality" required>
+                                    <input type="text" name="specialization" class="spec-input" value="<%= currentSpec %>" placeholder="e.g. Cardiology" required>
                                     <button type="submit" class="btn-assign">Save</button>
                                 </form>
-                            <% } else { %>
-                                <span style="color: #95a5a6;">Patient</span>
-                            <% } %>
-                        </td>
-                        
-                        <td><%= "DOCTOR".equals(role) ? "$" + fee : "-" %></td>
-                        <td><span style="font-size:12px; color:#34495e;"><%= "DOCTOR".equals(role) ? hours : "-" %></span></td>
-                        
-                        <td><strong style="color: <%= isActive ? "#2ecc71" : "#e74c3c" %>"><%= isActive ? "ACTIVE" : "SUSPENDED" %></strong></td>
-                        <td>
-                            <form action="admin-action" method="POST" style="display:inline;">
-                                <input type="hidden" name="action" value="toggleStatus">
-                                <input type="hidden" name="userId" value="<%= userId %>">
-                                <input type="hidden" name="currentStatus" value="<%= isActive %>">
-                                <button type="submit" class="action-btn <%= isActive ? "btn-status-active" : "btn-status-deactive" %>"><%= isActive ? "Suspend" : "Activate" %></button>
-                            </form>
-                            <form action="admin-action" method="POST" style="display:inline;" onsubmit="return confirm('Purge account?');">
-                                <input type="hidden" name="action" value="delete"><input type="hidden" name="userId" value="<%= userId %>">
-                                <button type="submit" class="action-btn btn-delete">Purge</button>
-                            </form>
-                        </td>
-                    </tr>
-                <% } %>
-                </tbody>
-            </table>
+                            </td>
+                            <td>$<%= fee %></td>
+                            <td><span style="font-size:12px; color:#34495e;"><%= hours %></span></td>
+                            <td><strong style="color: <%= isActive ? "#2ecc71" : "#e74c3c" %>"><%= isActive ? "ACTIVE" : "SUSPENDED" %></strong></td>
+                            <td>
+                                <form action="admin-action" method="POST" style="display:inline;">
+                                    <input type="hidden" name="action" value="toggleStatus"><input type="hidden" name="userId" value="<%= userId %>"><input type="hidden" name="currentStatus" value="<%= isActive %>">
+                                    <button type="submit" class="action-btn <%= isActive ? "btn-status-active" : "btn-status-deactive" %>"><%= isActive ? "Suspend" : "Activate" %></button>
+                                </form>
+                                <form action="admin-action" method="POST" style="display:inline;" onsubmit="return confirm('Purge account?');">
+                                    <input type="hidden" name="action" value="delete"><input type="hidden" name="userId" value="<%= userId %>">
+                                    <button type="submit" class="action-btn btn-delete">Purge</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <%      }
+                        }
+                        if (!hasDoctors) { 
+                    %>
+                        <tr><td colspan="8" style="text-align:center; color:#95a5a6; padding:15px;">No medical staff records indexed.</td></tr>
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel-section-wrapper">
+                <div class="panel-title">🏥 Registered Patients Directory</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient Name & Contact Details</th>
+                            <th>App Role</th>
+                            <th>Specialization Context</th>
+                            <th>Account Status</th>
+                            <th>Management Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% 
+                        boolean hasPatients = false;
+                        for (Map<String, Object> userRow : systemUsers) {
+                            if ("PATIENT".equals((String) userRow.get("role")) || userRow.get("role") == null) {
+                                hasPatients = true;
+                                int userId = (Integer) userRow.get("userId");
+                                boolean isActive = (Boolean) userRow.get("isActive");
+                    %>
+                        <tr>
+                            <td><strong>#<%= userId %></strong></td>
+                            <td><%= userRow.get("fullName") %><br><span style="font-size:11px; color:#7f8c8d;"><%= userRow.get("email") %></span></td>
+                            <td><span class="role-badge role-PATIENT">PATIENT</span></td>
+                            <td><span style="color: #7f8c8d; font-style: italic;">Standard Patient</span></td>
+                            <td><strong style="color: <%= isActive ? "#2ecc71" : "#e74c3c" %>"><%= isActive ? "ACTIVE" : "SUSPENDED" %></strong></td>
+                            <td>
+                                <form action="admin-action" method="POST" style="display:inline;">
+                                    <input type="hidden" name="action" value="toggleStatus"><input type="hidden" name="userId" value="<%= userId %>"><input type="hidden" name="currentStatus" value="<%= isActive %>">
+                                    <button type="submit" class="action-btn <%= isActive ? "btn-status-active" : "btn-status-deactive" %>"><%= isActive ? "Suspend" : "Activate" %></button>
+                                </form>
+                                <form action="admin-action" method="POST" style="display:inline;" onsubmit="return confirm('Purge patient account?');">
+                                    <input type="hidden" name="action" value="delete"><input type="hidden" name="userId" value="<%= userId %>">
+                                    <button type="submit" class="action-btn btn-delete">Purge</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <%      }
+                        }
+                        if (!hasPatients) { 
+                    %>
+                        <tr><td colspan="6" style="text-align:center; color:#95a5a6; padding:15px;">No patient records registered.</td></tr>
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel-section-wrapper">
+                <div class="panel-title">⚙️ System Administrators Core Group</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Administrator Name Reference</th>
+                            <th>Security Role Authority</th>
+                            <th>Specialization Domain</th>
+                            <th>Account Status</th>
+                            <th>Administrative Protection Access</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% 
+                        for (Map<String, Object> userRow : systemUsers) {
+                            if ("ADMIN".equals((String) userRow.get("role"))) {
+                                int userId = (Integer) userRow.get("userId");
+                    %>
+                        <tr>
+                            <td><strong>#<%= userId %></strong></td>
+                            <td><%= userRow.get("fullName") %><br><span style="font-size:11px; color:#7f8c8d;"><%= userRow.get("email") %></span></td>
+                            <td><span class="role-badge role-ADMIN">ADMIN</span></td>
+                            <td><strong style="color: #2c3e50;">System Core Control</strong></td>
+                            <td><span style="color:#2ecc71; font-weight:bold;">MASTER LIVE</span></td>
+                            <td>
+                                <span style="color: #95a5a6; font-size: 12px; font-style: italic; font-weight: 600;">🔒 Root Profile Protected</span>
+                            </td>
+                        </tr>
+                    <%      }
+                        } 
+                    %>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div id="config" class="data-panel">
