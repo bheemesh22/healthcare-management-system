@@ -67,9 +67,11 @@ public class AdminDAO {
     }
 
     // Upgraded robust synchronization logic
+ // Upgraded robust synchronization logic supporting your custom schema attributes
     public boolean provisionDoctorProfile(int userId, String specialization) {
         String checkSql = "SELECT doctor_id FROM doctors WHERE user_id = ?";
-        String insertSql = "INSERT INTO doctors (user_id, specialization) VALUES (?, ?)";
+        // Added consultation_fee to satisfy the strict NOT NULL database rule
+        String insertSql = "INSERT INTO doctors (user_id, specialization, consultation_fee) VALUES (?, ?, ?)";
         String updateSql = "UPDATE doctors SET specialization = ? WHERE user_id = ?";
         
         try (Connection conn = DBConnection.getConnection()) {
@@ -77,6 +79,7 @@ public class AdminDAO {
                 checkPs.setInt(1, userId);
                 try (ResultSet rs = checkPs.executeQuery()) {
                     if (rs.next()) {
+                        // Profile exists already, updating specialization is unaffected
                         try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
                             updatePs.setString(1, specialization.trim());
                             updatePs.setInt(2, userId);
@@ -84,9 +87,12 @@ public class AdminDAO {
                             return updatePs.executeUpdate() > 0;
                         }
                     } else {
+                        // Profile missing, inserting with a safe baseline consultation fee (e.g., 0.0)
                         try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
                             insertPs.setInt(1, userId);
                             insertPs.setString(2, specialization.trim());
+                            insertPs.setDouble(3, 0.0); // Safe baseline value. The doctor can update this later from their dashboard profile settings!
+                            
                             logAdminAction("SYSTEM", "PROVISION_DOCTOR", "Created doctor profile with specialization " + specialization + " for user ID: " + userId);
                             return insertPs.executeUpdate() > 0;
                         }
